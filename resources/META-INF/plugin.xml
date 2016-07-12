@@ -1,0 +1,36 @@
+<idea-plugin version="2" url="https://github.com/vkurdin/idea-php-lambda-folding">
+  <id>ru.vkurdin.idea.php.lambdafolding</id>
+  <name>PHP Lambda Folding</name>
+  <version>0.1</version>
+  <vendor email="vasiliy.kurdin@gmail.com" url="https://github.com/vkurdin">Vasiliy Kurdin</vendor>
+
+  <description><![CDATA[
+      Fold closures for concise functional-style code
+    ]]></description>
+
+  <change-notes><![CDATA[
+      v0.1: Initial release
+    ]]>
+  </change-notes>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/build_number_ranges.html for description -->
+  <idea-version since-build="141.0"/>
+
+  <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+       on how to target different products -->
+  <!-- uncomment to enable plugin in all products
+  <depends>com.intellij.modules.lang</depends>
+  -->
+  <depends>com.jetbrains.php</depends>
+  <depends>com.intellij.modules.platform</depends>
+
+  <extensions defaultExtensionNs="com.intellij">
+    <!-- Add your extensions here -->
+    <lang.foldingBuilder language="PHP" implementationClass="ru.vkurdin.idea.php.lambdafolding.LambdaFoldingBuilder"/>
+  </extensions>
+
+  <actions>
+    <!-- Add your actions here -->
+  </actions>
+
+</idea-plugin>
