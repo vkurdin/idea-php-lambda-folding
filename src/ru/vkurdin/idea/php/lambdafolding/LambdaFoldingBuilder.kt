@@ -11,7 +11,6 @@ import com.intellij.psi.impl.source.tree.LeafPsiElement
 import com.intellij.psi.util.PsiTreeUtil as IdeaUtils;
 import com.jetbrains.php.lang.psi.elements.*
 import com.jetbrains.php.lang.psi.elements.Function
-import java.util.*
 
 class LambdaFoldingBuilder : FoldingBuilderEx() {
 
@@ -82,18 +81,20 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                 listOf(
                     getFold(
                         it.func.node,
-                        it.func.textRange.startOffset,
-                        prevSiblings(it.params)
-                            .filter { it is LeafPsiElement && it.text == "(" } // locate left parenthesis
-                            .first()
-                            .textRange
-                            .startOffset
-                        ,
+                        TextRange(
+                            it.func.textRange.startOffset,
+                            prevSiblings(it.params)
+                                .filter { it is LeafPsiElement && it.text == "(" } // locate left parenthesis
+                                .first()
+                                .textRange
+                                .startOffset
+                        ),
                         "{ ",
                         foldGroup
                     ),
                     getFold(
                         it.func.node,
+                        TextRange(
                             if (it.type == null) {
                                 // no return type info
                                 nextSiblings(if (useVars.size == 0) it.params else useVars.last()) // search start point depends on "use" presense
@@ -103,16 +104,18 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                                     .endOffset
                             } else {
                                 it.type.textRange.endOffset
-                            }
-                        ,
-                        it.ret.textRange.startOffset,
+                            },
+                            it.ret.textRange.startOffset
+                        ),
                         " => ",
                         foldGroup
                     ),
                     getFold(
                         it.func.node,
-                        it.ret.textRange.endOffset,
-                        it.func.textRange.endOffset,
+                        TextRange(
+                            it.ret.textRange.endOffset,
+                            it.func.textRange.endOffset
+                        ),
                         " }",
                         foldGroup
                     )
@@ -120,55 +123,37 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
             }.toTypedArray()
     }
 
-    companion object Utils {
-        @JvmStatic
-        fun prevSiblings(root: PsiElement) : Sequence<PsiElement> {
-            return siblingSeq(root, { it.prevSibling })
-        }
-
-        @JvmStatic
-        fun nextSiblings(root: PsiElement) : Sequence<PsiElement> {
-            return siblingSeq(root, { it.nextSibling })
-        }
-
-        @JvmStatic
-        private fun <T> siblingSeq(root: T, siblingProvider: (T) -> T?) : Sequence<T> {
-            return object : Sequence<T> {
-                override fun iterator(): Iterator<T> {
-                    return object: Iterator<T> {
-                        private var next: T? = siblingProvider(root)
-
-                        override fun hasNext(): Boolean {
-                            return next != null
-                        }
-
-                        override fun next(): T {
-                            if (next == null) {
-                                throw NoSuchElementException()
-                            }
-
-                            val current = next
-                            next = siblingProvider(current as T)
-
-                            return current
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    private fun getFold(node: ASTNode, rangeStart: Int, rangeEnd: Int, placeholder: String, group: FoldingGroup): FoldingDescriptor {
-        return object : FoldingDescriptor(node, TextRange(rangeStart, rangeEnd), group) {
+    private fun getFold(node: ASTNode, range: TextRange, placeholder: String, group: FoldingGroup) =
+        object : FoldingDescriptor(node, range, group) {
             override fun getPlaceholderText() = placeholder
         }
-    }
 
-    override fun getPlaceholderText(node: ASTNode): String? {
-        return "..."
-    }
+    override fun getPlaceholderText(node: ASTNode) = "..."
 
-    override fun isCollapsedByDefault(node: ASTNode): Boolean {
-        return true;
+    override fun isCollapsedByDefault(node: ASTNode) = true
+
+    companion object Utils {
+        @JvmStatic
+        fun prevSiblings(root: PsiElement) : Sequence<PsiElement> = siblingSeq(root, { it.prevSibling })
+
+        @JvmStatic
+        fun nextSiblings(root: PsiElement) : Sequence<PsiElement> = siblingSeq(root, { it.nextSibling })
+
+        @JvmStatic
+        private fun <T> siblingSeq(root: T, siblingProvider: (T) -> T?) =
+            object : Sequence<T> {
+                override fun iterator() =
+                    object : Iterator<T> {
+                        private var next: T? = siblingProvider(root)
+
+                        override fun hasNext() = next != null
+
+                        override fun next() : T = next!!.let {
+                            val current = next;
+                            next = siblingProvider(current as T)
+                            current
+                        }
+                    }
+            }
     }
 }
