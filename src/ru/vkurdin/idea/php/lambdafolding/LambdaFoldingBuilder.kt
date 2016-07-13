@@ -8,18 +8,18 @@ import com.intellij.openapi.editor.FoldingGroup
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
-import com.intellij.psi.util.PsiTreeUtil as IdeaUtils;
+import com.intellij.psi.util.PsiTreeUtil as IdeaUtils
 import com.jetbrains.php.lang.psi.elements.*
 import com.jetbrains.php.lang.psi.elements.Function
 
 class LambdaFoldingBuilder : FoldingBuilderEx() {
 
     data class ClosureParts(
-        val func: Function, // closure body
+        val closure: Function, // closure body
         val params: ParameterList, // parameters
         val use: PhpUseList?, // "use" construct
-        val type: ClassReference?, // function return type(if any)
-        val ret: PhpExpression // returned expression
+        val returnType: ClassReference?, // function return type(if any)
+        val expression: PhpExpression // returned expression
     )
     
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<out FoldingDescriptor> {
@@ -29,14 +29,13 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                 it.isClosure &&
                 document.getLineNumber(it.textRange.startOffset) == document.getLineNumber(it.textRange.endOffset) &&
                 !IdeaUtils.hasErrorElements(it)
-            }.map {
-                val func = it;
+            }.map { closure ->
                 var params: ParameterList? = null
                 var bodyStmts: GroupStatement? = null
                 var use: PhpUseList? = null
                 var type: ClassReference? = null
 
-                func.children.forEach {
+                closure.children.forEach {
                     when (it) {
                         is ParameterList -> params = it
                         is GroupStatement -> bodyStmts = it
@@ -59,7 +58,7 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                         if (it is PhpReturn && it.argument is PhpExpression) it.argument else null
                     }?.let { expression ->
                         ClosureParts(
-                            func,
+                            closure,
                             params as ParameterList,
                             use,
                             type,
@@ -67,54 +66,50 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                         )
                     }
             }.filterNotNull()
-            .flatMap {
+            .flatMap { parts ->
                 val foldGroup = FoldingGroup.newGroup("lambda_fold")
-                var useVars = emptyArray<Variable>()
+                var useVars = emptyList<Variable>()
 
-                if (it.use != null) {
-                    useVars = it.use.children
-                        .filterIsInstance(Variable::class.java)
-                        .toTypedArray()
+                if (parts.use != null) {
+                    useVars = parts.use.children.filterIsInstance(Variable::class.java)
                 }
 
                 // hide "function", "return" keywords, semicolon
                 listOf(
                     getFold(
-                        it.func.node,
+                        parts.closure.node,
                         TextRange(
-                            it.func.textRange.startOffset,
-                            prevSiblings(it.params)
+                            parts.closure.textRange.startOffset,
+                            prevSiblings(parts.params)
                                 .filter { it is LeafPsiElement && it.text == "(" } // locate left parenthesis
                                 .first()
-                                .textRange
-                                .startOffset
+                                .textRange.startOffset
                         ),
                         "{ ",
                         foldGroup
                     ),
                     getFold(
-                        it.func.node,
+                        parts.closure.node,
                         TextRange(
-                            if (it.type == null) {
+                            if (parts.returnType == null) {
                                 // no return type info
-                                nextSiblings(if (useVars.size == 0) it.params else useVars.last()) // search start point depends on "use" presense
+                                nextSiblings(if (useVars.size == 0) parts.params else useVars.last()) // search start point depends on "use" presense
                                     .filter { it is LeafPsiElement && it.text == ")" } // locate right parenthesis
                                     .first()
-                                    .textRange
-                                    .endOffset
+                                    .textRange.endOffset
                             } else {
-                                it.type.textRange.endOffset
+                                parts.returnType.textRange.endOffset
                             },
-                            it.ret.textRange.startOffset
+                            parts.expression.textRange.startOffset
                         ),
                         " => ",
                         foldGroup
                     ),
                     getFold(
-                        it.func.node,
+                        parts.closure.node,
                         TextRange(
-                            it.ret.textRange.endOffset,
-                            it.func.textRange.endOffset
+                            parts.expression.textRange.endOffset,
+                            parts.closure.textRange.endOffset
                         ),
                         " }",
                         foldGroup
@@ -149,7 +144,7 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                         override fun hasNext() = next != null
 
                         override fun next() : T = next!!.let {
-                            val current = next;
+                            val current = next
                             next = siblingProvider(current as T)
                             current
                         }
