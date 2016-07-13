@@ -5,7 +5,7 @@
   <vendor email="vasiliy.kurdin@gmail.com" url="https://github.com/vkurdin">Vasiliy Kurdin</vendor>
 
   <description><![CDATA[
-      Fold closures for concise functional-style code
+      Plugin folds one-line closures into more concise form. Closure body must consist of one return statement enclosing expression.
     ]]></description>
 
   <change-notes><![CDATA[
