@@ -47,3 +47,6 @@ array_map(<fold text='{ '>function </fold>($arg1, $arg2) use ($var1)<fold text='
 
 // use, multiple capture
 array_map(<fold text='{ '>function </fold>($arg1, $arg2) use ($var1, $var2 )<fold text=' => '> { return </fold>1 + 1<fold text=' }'>; }</fold>)
+
+// nested closures
+array_map(<fold text='{ '>function </fold>($arg1, $arg2) use ($var1)<fold text=' => '> { return </fold><fold text='{ '>function </fold>($var)<fold text=' => '> { return </fold>1 + 1<fold text=' }'>; }</fold><fold text=' }'>; }</fold>)
