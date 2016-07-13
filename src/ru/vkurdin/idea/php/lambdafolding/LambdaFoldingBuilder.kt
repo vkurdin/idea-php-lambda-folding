@@ -12,6 +12,9 @@ import com.intellij.psi.util.PsiTreeUtil as IdeaUtils
 import com.jetbrains.php.lang.psi.elements.*
 import com.jetbrains.php.lang.psi.elements.Function
 
+inline fun <T> T.filterIf(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
+inline fun <T, reified R> T.filterIs(klass: java.lang.Class<R>): R? = if (this is R) this else null
+
 class LambdaFoldingBuilder : FoldingBuilderEx() {
 
     data class ClosureParts(
@@ -46,23 +49,21 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
 
                 params
                     ?.let { bodyStmts }
-                    ?.let {
-                        val returns = it.statements
-                            .asSequence()
-                            .filterIsInstance(Statement::class.java)
-                            .take(2)
-                            .toList()
-
-                        if (returns.size == 1) returns.first() else null
-                    }?.let {
-                        if (it is PhpReturn && it.argument is PhpExpression) it.argument else null
-                    }?.let { expression ->
+                    ?.statements
+                    ?.asSequence()
+                    ?.filterIsInstance(Statement::class.java)
+                    ?.take(2)
+                    ?.toList()
+                    ?.filterIf { it.size == 1 }
+                    ?.let { it.first() } ?.filterIs(PhpReturn::class.java)
+                    ?.let { it.argument } ?.filterIs(PhpExpression::class.java)
+                    ?.let { expression ->
                         ClosureParts(
                             closure,
-                            params as ParameterList,
+                            params!!,
                             use,
                             type,
-                            expression as PhpExpression
+                            expression
                         )
                     }
             }.filterNotNull()
