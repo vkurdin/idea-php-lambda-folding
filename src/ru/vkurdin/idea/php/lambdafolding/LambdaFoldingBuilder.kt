@@ -27,6 +27,7 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
     
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<out FoldingDescriptor> {
         return IdeaUtils.findChildrenOfType(root, Function::class.java)
+            .asSequence()
             .filter {
                 // leave one-liner closures w/o errors
                 it.isClosure &&
@@ -48,15 +49,15 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                 }
 
                 params
-                    ?.let { bodyStmts }
-                    ?.statements
-                    ?.asSequence()
-                    ?.filterIsInstance(Statement::class.java)
-                    ?.take(2)
-                    ?.toList()
-                    ?.filterIf { it.size == 1 }
-                    ?.let { it.first() } ?.filterIs(PhpReturn::class.java)
-                    ?.let { it.argument } ?.filterIs(PhpExpression::class.java)
+                    ?.let { bodyStmts } // params and bodyStmts must be found
+                    ?.statements!!
+                    .asSequence()
+                    .filterIsInstance(Statement::class.java)
+                    .take(2) // take at most two statements
+                    .toList()
+                    .filterIf { it.size == 1 } // closure body must contain exactly one ...
+                    ?.let { it.first() } ?.filterIs(PhpReturn::class.java) // ... return statement which result is ...
+                    ?.let { it.argument } ?.filterIs(PhpExpression::class.java) //  ...an arbitrary expression
                     ?.let { expression ->
                         ClosureParts(
                             closure,
@@ -76,7 +77,7 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                 }
 
                 // hide "function", "return" keywords, semicolon
-                listOf(
+                sequenceOf(
                     getFold(
                         parts.closure.node,
                         TextRange(
@@ -116,7 +117,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                         foldGroup
                     )
                 )
-            }.toTypedArray()
+            }.toList()
+            .toTypedArray()
     }
 
     private fun getFold(node: ASTNode, range: TextRange, placeholder: String, group: FoldingGroup) =
@@ -145,8 +147,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                         override fun hasNext() = next != null
 
                         override fun next() : T = next!!.let {
-                            val current = next
-                            next = siblingProvider(current as T)
+                            val current = it
+                            next = siblingProvider(current)
                             current
                         }
                     }
