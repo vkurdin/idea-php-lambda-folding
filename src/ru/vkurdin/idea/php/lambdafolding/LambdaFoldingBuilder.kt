@@ -12,8 +12,8 @@ import com.intellij.psi.util.PsiTreeUtil as IdeaUtils
 import com.jetbrains.php.lang.psi.elements.*
 import com.jetbrains.php.lang.psi.elements.Function
 
-inline fun <T> T.filterIf(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
-inline fun <T, reified R> T.filterIs(klass: java.lang.Class<R>): R? = if (this is R) this else null
+inline fun <T> T.letIf(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
+inline fun <T, reified R> T.letIs(klass: java.lang.Class<R>): R? = if (this is R) this else null
 
 class LambdaFoldingBuilder : FoldingBuilderEx() {
 
@@ -55,9 +55,9 @@ class LambdaFoldingBuilder : FoldingBuilderEx() {
                     .filterIsInstance(Statement::class.java)
                     .take(2) // take at most two statements
                     .toList()
-                    .filterIf { it.size == 1 } // closure body must contain exactly one ...
-                    ?.let { it.first() } ?.filterIs(PhpReturn::class.java) // ... return statement which result is ...
-                    ?.let { it.argument } ?.filterIs(PhpExpression::class.java) //  ...an arbitrary expression
+                    .letIf { it.size == 1 } // closure body must contain exactly one ...
+                    ?.let { it.first() } ?.letIs(PhpReturn::class.java) // ... return statement which result is ...
+                    ?.let { it.argument } ?.letIs(PhpExpression::class.java) //  ...an arbitrary expression
                     ?.let { expression ->
                         ClosureParts(
                             closure,
