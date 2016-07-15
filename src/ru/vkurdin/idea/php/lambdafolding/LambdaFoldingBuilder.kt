@@ -5,6 +5,7 @@ import com.intellij.lang.folding.FoldingBuilderEx
 import com.intellij.lang.folding.FoldingDescriptor
 import com.intellij.openapi.editor.Document
 import com.intellij.openapi.editor.FoldingGroup
+import com.intellij.openapi.project.DumbAware
 import com.intellij.openapi.util.TextRange
 import com.intellij.psi.PsiElement
 import com.intellij.psi.impl.source.tree.LeafPsiElement
@@ -15,7 +16,7 @@ import com.jetbrains.php.lang.psi.elements.Function
 inline fun <T> T.letIf(predicate: (T) -> Boolean): T? = if (predicate(this)) this else null
 inline fun <T, reified R> T.letIs(klass: java.lang.Class<R>): R? = if (this is R) this else null
 
-class LambdaFoldingBuilder : FoldingBuilderEx() {
+class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
     data class ClosureParts(
         val closure: Function, // closure body
