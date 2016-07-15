@@ -1,5 +1,6 @@
 PHP lambda folding plugin for Intellij IDEA
 ===============
+[![Build status](https://travis-ci.org/vkurdin/idea-php-lambda-folding.svg?branch=master)](https://travis-ci.org/vkurdin/idea-php-lambda-folding)
 
 _Fold your closures like a boss!_
 
