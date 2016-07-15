@@ -1,3 +1,10 @@
-.idea
-out
-*.jar
+/.idea
+/out
+/*.jar
+/.gradle/
+/*.iml
+/*.ipr
+/*.iws
+/build/
+/.sandbox/
+.DS_Store
