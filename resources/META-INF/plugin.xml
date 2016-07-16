@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/vkurdin/idea-php-lambda-folding">
   <id>ru.vkurdin.idea.php.lambdafolding</id>
   <name>PHP Lambda Folding</name>
-  <version>0.1.0</version>
+  <version>0.2.0</version>
   <vendor email="vasiliy.kurdin@gmail.com" url="https://github.com/vkurdin">Vasiliy Kurdin</vendor>
 
   <description><![CDATA[
@@ -9,6 +9,8 @@
     ]]></description>
 
   <change-notes><![CDATA[
+      v0.2.0: type inference for closure arguments passed to array_map, array_filter etc.
+
       v0.1.0: Initial release
     ]]>
   </change-notes>
@@ -25,8 +27,8 @@
   <depends>com.intellij.modules.platform</depends>
 
   <extensions defaultExtensionNs="com.intellij">
-    <!-- Add your extensions here -->
     <lang.foldingBuilder language="PHP" implementationClass="ru.vkurdin.idea.php.lambdafolding.LambdaFoldingBuilder"/>
+    <php.typeProvider3 implementation="ru.vkurdin.idea.php.lambdafolding.ClosureArgumentTypeProvider"/>
   </extensions>
 
   <actions>

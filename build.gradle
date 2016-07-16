@@ -22,8 +22,8 @@ apply plugin: 'org.jetbrains.intellij'
 apply plugin: 'idea'
 
 intellij {
-    version 'IU-2016.2'
-    type 'IU'
+    version ideaVersion
+    type ideaType
     plugins = ['php', 'java-i18n', 'properties', 'CSS']
     updateSinceUntilBuild false
     sameSinceUntilBuild false
