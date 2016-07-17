@@ -4,14 +4,25 @@ import com.intellij.codeInsight.completion.CompletionType
 import junit.framework.TestCase.*
 
 class ClosureArgumentTypeProviderTest : TestCase() {
-    val defaultCompletion = "barProperty"
+    override val testResourcesPath = "${super.testResourcesPath}/completions"
 
-    fun testArrayMapComplete() = doTest()
+    val defaultCompletion = "fooProperty"
 
-    override fun doTest() {
+    fun testArrayMap() = doTest()
+
+    fun testNoCompletionForSpecifiedClass() {
+        assertTrue("More specialized \\Bar should be used", myFixture.lookupElementStrings?.contains("barProperty") ?: false)
+        assertFalse("\\Foo should be absent from completions", myFixture.lookupElementStrings?.contains("fooProperty") ?: true)
+    }
+
+    override fun setUp() {
+        super.setUp()
+
         myFixture.configureByFile(fileName)
         myFixture.complete(CompletionType.BASIC, 1)
+    }
 
+    override fun doTest() {
         assertTrue(myFixture.lookupElementStrings?.contains(defaultCompletion) ?: false)
     }
 }

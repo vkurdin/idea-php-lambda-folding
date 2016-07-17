@@ -1,8 +1,9 @@
 <?php
 
 class Foo {
-    public $barProperty;
+    public $fooProperty;
 }
+
 /** @var Foo[] $arr */
 $arr = [new Foo(), new Foo()];
 

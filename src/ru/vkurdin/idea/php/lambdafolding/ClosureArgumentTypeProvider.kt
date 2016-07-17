@@ -17,7 +17,10 @@ class ClosureArgumentTypeProvider : PhpTypeProvider3 {
         var closureParams : Array<out Parameter>? = null
 
         return element
-            ?. letIs(Parameter::class.java)
+            ?. letIf {
+                it is Parameter &&
+                it.firstChild !is ClassReference
+            }
             ?. parent
             ?. letIs(ParameterList::class.java)
             ?. parent
