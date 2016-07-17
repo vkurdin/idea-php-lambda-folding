@@ -2,18 +2,20 @@ package ru.vkurdin.idea.php.lambdafolding
 
 import com.intellij.openapi.project.Project
 import com.intellij.psi.PsiElement
+import com.jetbrains.php.PhpIndex
 import com.jetbrains.php.lang.psi.elements.*
 import com.jetbrains.php.lang.psi.elements.Function
 import com.intellij.psi.util.PsiTreeUtil as TreeUtil
 import com.jetbrains.php.lang.psi.resolve.types.PhpType
-import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider3
+import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider2
 
-class ClosureArgumentTypeProvider : PhpTypeProvider3 {
-    override fun getKey() = '\u2002'
+class ClosureArgumentTypeProvider : PhpTypeProvider2 {
+    override fun getKey() = '\u2708'
 
-    override fun getBySignature(p0: String?, p1: Project?): MutableCollection<out PhpNamedElement>? = null
+    override fun getBySignature(signature: String, project: Project): MutableCollection<out PhpNamedElement>? =
+        PhpIndex.getInstance(project).getClassesByFQN(signature)
 
-    override fun getType(element: PsiElement?): PhpType? {
+    override fun getType(element: PsiElement?): String? {
         var closureParams : Array<out Parameter>? = null
 
         return element
@@ -47,7 +49,7 @@ class ClosureArgumentTypeProvider : PhpTypeProvider3 {
             ?. let {
                 val type = PhpType()
                 it.forEach { strType -> type.add(strType) }
-                type
+                type.toString()
             }
     }
 

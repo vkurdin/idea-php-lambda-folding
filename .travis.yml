@@ -10,3 +10,8 @@ cache:
   directories:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
+
+env:
+    - ORG_GRADLE_PROJECT_ideaVersion="IU-2016.2" ORG_GRADLE_PROJECT_phpPluginVersion="php-162.1121.34" ORG_GRADLE_PROJECT_phpPluginUpdateId="27035"
+    - ORG_GRADLE_PROJECT_ideaVersion="IU-2016.1" ORG_GRADLE_PROJECT_phpPluginVersion="php-145.970.40" ORG_GRADLE_PROJECT_phpPluginUpdateId="25793"
+    - ORG_GRADLE_PROJECT_ideaVersion="IU-15.0.6" ORG_GRADLE_PROJECT_phpPluginVersion="php-143.1770" ORG_GRADLE_PROJECT_phpPluginUpdateId="23319"
