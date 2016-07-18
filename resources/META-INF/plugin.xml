@@ -9,8 +9,9 @@
     ]]></description>
 
   <change-notes><![CDATA[
-      v0.2.0: type inference for closure arguments passed to array_map, array_filter etc.
-
+      v0.2.0: type inference for arguments of closures passed to array_map, array_filter etc.
+      <br/>
+      <br/>
       v0.1.0: Initial release
     ]]>
   </change-notes>

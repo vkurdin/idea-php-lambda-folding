@@ -15,7 +15,7 @@ import com.jetbrains.php.lang.psi.elements.Function
 
 class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
 
-    data class ClosureParts(
+    class ClosureParts(
         val closure: Function, // closure body
         val params: ParameterList, // parameters
         val use: PhpUseList?, // "use" construct
@@ -27,7 +27,7 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
         IdeaUtils.findChildrenOfType(root, Function::class.java)
         .asSequence()
         .filter {
-            // leave one-liner closures w/o errors
+            // match one-liner closures w/o errors
             it.isClosure &&
             document.getLineNumber(it.textRange.startOffset) == document.getLineNumber(it.textRange.endOffset) &&
             !IdeaUtils.hasErrorElements(it)
@@ -47,16 +47,16 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             }
 
             params
-            ?.let { bodyStmts } // params and bodyStmts must be found
-            ?.statements
-            ?.asSequence()
-            ?.filterIsInstance(Statement::class.java)
-            ?.take(2) // take at most two statements
-            ?.toList()
-            ?.letIf { it.size == 1 } // closure body must contain exactly one ...
-            ?.first() ?.letIs(PhpReturn::class.java) // ... return statement which result is ...
-            ?.argument ?.letIs(PhpExpression::class.java) //  ...an arbitrary expression
-            ?.let { expression ->
+            ?. let { bodyStmts } // params and bodyStmts must be found
+            ?. statements
+            ?. asSequence()
+            ?. filterIsInstance(Statement::class.java)
+            ?. take(2) // take at most two statements
+            ?. toList()
+            ?. letIf { it.size == 1 } // closure body must contain exactly one ...
+            ?. first() ?. letIs(PhpReturn::class) // ... return statement which result is ...
+            ?. argument ?. letIs(PhpExpression::class) //  ...an arbitrary expression
+            ?. let { expression ->
                 ClosureParts(
                     closure,
                     params!!,

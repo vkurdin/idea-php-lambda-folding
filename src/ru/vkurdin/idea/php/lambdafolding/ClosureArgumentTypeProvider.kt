@@ -23,16 +23,14 @@ class ClosureArgumentTypeProvider : PhpTypeProvider2 {
                 it is Parameter &&
                 it.firstChild !is ClassReference
             }
-            ?. parent
-            ?. letIs(ParameterList::class.java)
+            ?. parent ?. letIs(ParameterList::class)
             ?. parent
             ?. letIf { it is Function && it.isClosure }
             ?. let {
                 closureParams = (it as Function).parameters
                 it
             }
-            ?. parent ?. parent ?. parent
-            ?. letIs(FunctionReference::class.java)
+            ?. parent ?. parent ?. parent ?. letIs(FunctionReference::class)
             ?. getCallMetadata()
             ?. let { meta ->
                 val index = closureParams!!.indexOf(element)
@@ -45,15 +43,17 @@ class ClosureArgumentTypeProvider : PhpTypeProvider2 {
             }
             ?. filter { it.length > 3 && it.endsWith("[]") }
             ?. map { it.substring(0, it.length - 2) }
-            ?. letIf { it.any() }
             ?. let {
                 val type = PhpType()
+
                 it.forEach { strType -> type.add(strType) }
                 type.toString()
             }
     }
 
-    data class CallbackMetadata(val types : Sequence<String>, val paramPositions : Array<Int>)
+    class CallbackMetadata(phpTypes : Sequence<PsiElement>, val paramPositions : Array<Int>) {
+        val types = phpTypes.flatMap { (it as PhpExpression).type.types.asSequence() }
+    }
 
     fun FunctionReference.getCallMetadata(): CallbackMetadata? =
         this.parameters
@@ -64,38 +64,41 @@ class ClosureArgumentTypeProvider : PhpTypeProvider2 {
             when (this.name) {
                 // array_map(callback(e), arr0, arr1, ...)
                 "array_map" -> CallbackMetadata(
-                    params.filterIndexed { i, e -> i >= 1 }.getTypes(),
+                    params.filterIndexed { i, e -> i >= 1 },
                     arrayOf(0)
                 )
+
                 // array_filter(arr0, callback(e))
                 "array_filter" -> CallbackMetadata(
-                    params.take(1).getTypes(),
+                    params.take(1),
                     arrayOf(0)
                 )
+
                 // array_udiff(arr0, arr1, arr2 ... callback(e, e))
                 "array_udiff" -> CallbackMetadata(
-                    params.filterIndexed { i, e -> i < this.parameters.size - 1 }.getTypes(),
+                    params.filterIndexed { i, e -> i < this.parameters.size - 1 },
                     arrayOf(0, 1)
                 )
+
                 // array_reduce(arr, callback(carry, e))
                 "array_reduce" -> CallbackMetadata(
-                    params.take(1).getTypes(),
+                    params.take(1),
                     arrayOf(1)
                 )
+
                 // usort(arr, callback(e, e))
                 "usort" -> CallbackMetadata(
-                    params.take(1).getTypes(),
+                    params.take(1),
                     arrayOf(0, 1)
                 )
+
                 // uasort(arr, callback(e, e))
                 "uasort" -> CallbackMetadata(
-                    params.take(1).getTypes(),
+                    params.take(1),
                     arrayOf(0, 1)
                 )
+
                 else -> null
             }
         }
-
-    private fun Sequence<PsiElement>.getTypes(): Sequence<String> =
-        this.flatMap { (it as PhpExpression).type.types.asSequence() }
 }
