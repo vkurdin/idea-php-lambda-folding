@@ -70,8 +70,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             val foldGroup = FoldingGroup.newGroup("lambda_fold")
             var useVars = emptyList<Variable>()
 
-            if (parts.use != null) {
-                useVars = parts.use.children.filterIsInstance(Variable::class.java)
+            parts.use ?.let {
+                useVars = it.children.filterIsInstance(Variable::class.java)
             }
 
             // hide "function", "return" keywords, semicolon
@@ -80,7 +80,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                     parts.closure.node,
                     TextRange(
                         parts.closure.textRange.startOffset,
-                        prevSiblings(parts.params)
+                        parts.params
+                            .prevSiblings()
                             .filter { it is LeafPsiElement && it.text == "(" } // locate left parenthesis
                             .first()
                             .textRange.startOffset
@@ -93,7 +94,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                     TextRange(
                         if (parts.returnType == null) {
                             // no return type info
-                            nextSiblings(if (useVars.size == 0) parts.params else useVars.last()) // search start point depends on "use" presense
+                            (if (useVars.isEmpty()) parts.params else useVars.last()) // search start point depends on "use" presense
+                                .nextSiblings()
                                 .filter { it is LeafPsiElement && it.text == ")" } // locate right parenthesis
                                 .first()
                                 .textRange.endOffset

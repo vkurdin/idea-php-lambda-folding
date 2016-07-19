@@ -4,7 +4,7 @@ import com.intellij.codeInsight.completion.CompletionType
 import junit.framework.TestCase.*
 
 class ClosureArgumentTypeProviderTest : TestCase() {
-    override val testResourcesPath = "${super.testResourcesPath}/completions"
+    override val testResourcesPath = "${super.testResourcesPath}/completions/closureArgument"
 
     val defaultCompletion = "fooProperty"
 
@@ -15,14 +15,14 @@ class ClosureArgumentTypeProviderTest : TestCase() {
         assertFalse("\\Foo should be absent from completions", myFixture.lookupElementStrings?.contains("fooProperty") ?: true)
     }
 
+    protected fun doTest() {
+        assertTrue(myFixture.lookupElementStrings?.contains(defaultCompletion) ?: false)
+    }
+
     override fun setUp() {
         super.setUp()
 
         myFixture.configureByFile(fileName)
         myFixture.complete(CompletionType.BASIC, 1)
-    }
-
-    override fun doTest() {
-        assertTrue(myFixture.lookupElementStrings?.contains(defaultCompletion) ?: false)
     }
 }

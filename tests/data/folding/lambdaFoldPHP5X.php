@@ -1,5 +1,7 @@
 <?php
 
+class Foo {}
+
 // DON'T FOLD
 
 // syntax errors prevent folding
