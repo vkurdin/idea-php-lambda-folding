@@ -55,7 +55,7 @@ class StandardCallableArgumentsTypeProvider : PhpTypeProvider2 {
         val types = phpTypes.flatMap { (it as PhpExpression).type.types.asSequence() }
     }
 
-    fun FunctionReference.getCallMetadata(): CallbackMetadata? =
+    private fun FunctionReference.getCallMetadata(): CallbackMetadata? =
         this.parameters
         .letIf { it.all { it is PhpExpression } }
         ?. let {

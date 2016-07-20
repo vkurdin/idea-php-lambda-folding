@@ -16,6 +16,8 @@ open class PhpOptionTypeProviderPHP56Test : TestCase() {
     fun testFilterCall() = assertCompletion("barProperty")
     fun testFilterChainedCall() = assertCompletion("barProperty")
 
+    fun testFlatMapCall() = assertCompletion("fooBarProperty")
+
     override fun setUp() {
         super.setUp()
 

@@ -18,13 +18,19 @@ abstract class Option {
      * @param $callable
      * @return Option
      */
+    abstract public function flatMap($callable);
+
+    /**
+     * @param $callable
+     * @return Option
+     */
     abstract public function filter($callable);
 
     /**
      * @param $callable
      * @return Option
      */
-    abstract public function filterNot($callable)
+    abstract public function filterNot($callable);
 
     /**
      * @param $callable
