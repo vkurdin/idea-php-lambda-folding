@@ -5,14 +5,17 @@
   <vendor email="vasiliy.kurdin@gmail.com" url="https://github.com/vkurdin">Vasiliy Kurdin</vendor>
 
   <description><![CDATA[
-      Plugin folds one-line closures into more concise form. Closure body must consist of one return statement enclosing expression.
+      Plugin folds one-line closures into more concise form and provides some type inference for closure arguments. Closure body must consist of one return statement enclosing expression.
     ]]></description>
 
   <change-notes><![CDATA[
-      v0.2.0: type inference for arguments of closures passed to array_map, array_filter etc.
+      <b>v0.3.0:</b> type inference for callables' arguments inside fluent calls to \PhpOption\Option(Some, None)
       <br/>
       <br/>
-      v0.1.0: Initial release
+      <b>v0.2.0:</b> type inference for arguments of closures passed to array_map(), array_filter(), array_udiff(), array_reduce(), usort(), uasort()
+      <br/>
+      <br/>
+      <b>v0.1.0:</b> Initial release
     ]]>
   </change-notes>
 
@@ -29,7 +32,8 @@
 
   <extensions defaultExtensionNs="com.intellij">
     <lang.foldingBuilder language="PHP" implementationClass="ru.vkurdin.idea.php.lambdafolding.LambdaFoldingBuilder"/>
-    <php.typeProvider2 implementation="ru.vkurdin.idea.php.lambdafolding.ClosureArgumentTypeProvider"/>
+    <php.typeProvider2 implementation="ru.vkurdin.idea.php.lambdafolding.StandardCallableArgumentsTypeProvider"/>
+    <php.typeProvider2 implementation="ru.vkurdin.idea.php.lambdafolding.PhpOptionTypeProvider"/>
   </extensions>
 
   <actions>

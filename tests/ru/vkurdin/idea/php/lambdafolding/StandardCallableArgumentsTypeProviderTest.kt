@@ -3,7 +3,7 @@ package ru.vkurdin.idea.php.lambdafolding
 import com.intellij.codeInsight.completion.CompletionType
 import junit.framework.TestCase.*
 
-class ClosureArgumentTypeProviderTest : TestCase() {
+class StandardCallableArgumentsTypeProviderTest : TestCase() {
     override val testResourcesPath = "${super.testResourcesPath}/completions/closureArgument"
 
     val defaultCompletion = "fooProperty"

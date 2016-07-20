@@ -2,22 +2,24 @@ package ru.vkurdin.idea.php.lambdafolding
 
 import com.intellij.psi.PsiElement
 
-fun PsiElement.prevSiblings() = siblingSeq { it.prevSibling }
+fun PsiElement.prevSiblings() = elementSeq { it.prevSibling }
 
-fun PsiElement.nextSiblings() = siblingSeq { it.nextSibling }
+fun PsiElement.nextSiblings() = elementSeq { it.nextSibling }
 
-inline private fun <T> T.siblingSeq(crossinline siblingProvider: (T) -> T?) =
+fun PsiElement.parents() = elementSeq { it.parent }
+
+inline private fun <T> T.elementSeq(crossinline elementProvider: (T) -> T?) =
     object : Sequence<T> {
         override fun iterator() =
             object : Iterator<T> {
-                private var next: T? = siblingProvider(this@siblingSeq)
+                private var next: T? = elementProvider(this@elementSeq)
 
                 override fun hasNext() = next != null
 
                 override fun next() : T = next!!.let {
                     val current = it
 
-                    next = siblingProvider(current)
+                    next = elementProvider(current)
                     current
                 }
             }

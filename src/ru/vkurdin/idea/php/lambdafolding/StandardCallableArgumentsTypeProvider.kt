@@ -9,8 +9,8 @@ import com.intellij.psi.util.PsiTreeUtil as TreeUtil
 import com.jetbrains.php.lang.psi.resolve.types.PhpType
 import com.jetbrains.php.lang.psi.resolve.types.PhpTypeProvider2
 
-class ClosureArgumentTypeProvider : PhpTypeProvider2 {
-    override fun getKey() = '\u2708'
+class StandardCallableArgumentsTypeProvider : PhpTypeProvider2 {
+    override fun getKey() = '✈'
 
     override fun getBySignature(signature: String, project: Project): MutableCollection<out PhpNamedElement>? =
         PhpIndex.getInstance(project).getClassesByFQN(signature)
