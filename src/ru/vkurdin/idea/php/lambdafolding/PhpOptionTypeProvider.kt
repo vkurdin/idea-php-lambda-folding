@@ -58,9 +58,9 @@ class PhpOptionTypeProvider : PhpTypeProvider2 {
                             ?. getLocalType(true) ?. types ?. asSequence()
                             ?. filterNot { it.startsWith("#✈\\PhpOption\\Option") }
                             ?. map { it.removePrefix("#✈") }
-                            ?. joinToString("|")
+                            ?. joinToString("#✈#")
                             ?. letIf { it.isNotBlank() }
-                            ?. let { "\\PhpOption\\Option<${it.replace("|", "#✈#")}>" }
+                            ?. let { "\\PhpOption\\Option<$it>" }
 
                         // Option<T> -> flatMap
                         element.name == "flatMap" &&
