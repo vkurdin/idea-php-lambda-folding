@@ -1,7 +1,7 @@
 <idea-plugin version="2" url="https://github.com/vkurdin/idea-php-lambda-folding">
   <id>ru.vkurdin.idea.php.lambdafolding</id>
   <name>PHP Lambda Folding</name>
-  <version>0.2.0</version>
+  <version>0.3.0</version>
   <vendor email="vasiliy.kurdin@gmail.com" url="https://github.com/vkurdin">Vasiliy Kurdin</vendor>
 
   <description><![CDATA[
