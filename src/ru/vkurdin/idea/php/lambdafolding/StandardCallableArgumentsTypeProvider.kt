@@ -15,41 +15,31 @@ class StandardCallableArgumentsTypeProvider : PhpTypeProvider2 {
     override fun getBySignature(signature: String, project: Project): MutableCollection<out PhpNamedElement>? =
         PhpIndex.getInstance(project).getClassesByFQN(signature)
 
-    override fun getType(element: PsiElement?): String? {
-        var closureParams : Array<out Parameter>? = null
+    override fun getType(element: PsiElement?): String? =
+        element
+        ?. letIf {
+            it is Parameter &&
+            it.firstChild !is ClassReference
+        }
+        ?. parent ?. letIs(ParameterList::class)
+        ?. parent
+        ?. letIs (Function::class) ?. letIf { it.isClosure }
+        ?. let {
+            val metadata = it.parent ?. parent ?. parent ?. letIs(FunctionReference::class) ?. getCallMetadata()
 
-        return element
-            ?. letIf {
-                it is Parameter &&
-                it.firstChild !is ClassReference
-            }
-            ?. parent ?. letIs(ParameterList::class)
-            ?. parent
-            ?. letIf { it is Function && it.isClosure }
-            ?. let {
-                closureParams = (it as Function).parameters
-                it
-            }
-            ?. parent ?. parent ?. parent ?. letIs(FunctionReference::class)
-            ?. getCallMetadata()
-            ?. let { meta ->
-                val index = closureParams!!.indexOf(element)
+            if (metadata ?. paramPositions ?. contains(it.parameters.indexOf(element)) ?: false)
+                metadata ?. types
+             else
+                null
+        }
+        ?. filter { it.length > 3 && it.endsWith("[]") }
+        ?. map { it.substring(0, it.length - 2) }
+        ?. let {
+            val type = PhpType()
 
-                if (index > -1 && index in meta.paramPositions) {
-                    meta.types
-                } else {
-                    null
-                }
-            }
-            ?. filter { it.length > 3 && it.endsWith("[]") }
-            ?. map { it.substring(0, it.length - 2) }
-            ?. let {
-                val type = PhpType()
-
-                it.forEach { strType -> type.add(strType) }
-                type.toString()
-            }
-    }
+            it.forEach { strType -> type.add(strType) }
+            type.toString()
+        }
 
     class CallbackMetadata(phpTypes : Sequence<PsiElement>, val paramPositions : Array<Int>) {
         val types = phpTypes.flatMap { (it as PhpExpression).type.types.asSequence() }
