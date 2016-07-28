@@ -54,8 +54,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             ?. take(2) // take at most two statements
             ?. toList()
             ?. letIf { it.size == 1 } // closure body must contain exactly one ...
-            ?. first() ?. letIs(PhpReturn::class) // ... return statement which result is ...
-            ?. argument ?. letIs(PhpExpression::class) //  ...an arbitrary expression
+            ?. first() ?. let { it as? PhpReturn } // ... return statement which result is ...
+            ?. argument ?. let { it as? PhpExpression } //  ...an arbitrary expression
             ?. let { expression ->
                 ClosureParts(
                     closure,

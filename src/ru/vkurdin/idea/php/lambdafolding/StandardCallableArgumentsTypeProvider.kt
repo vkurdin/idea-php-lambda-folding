@@ -21,11 +21,14 @@ class StandardCallableArgumentsTypeProvider : PhpTypeProvider2 {
             it is Parameter &&
             it.firstChild !is ClassReference
         }
-        ?. parent ?. letIs(ParameterList::class)
+        ?. parent ?. let { it as? ParameterList }
         ?. parent
         ?. letIs (Function::class) ?. letIf { it.isClosure }
         ?. let {
-            val metadata = it.parent ?. parent ?. parent ?. letIs(FunctionReference::class) ?. getCallMetadata()
+            val metadata =
+                it.parent ?. parent ?. parent
+                ?. let { it as? FunctionReference }
+                ?. getCallMetadata()
 
             if (metadata ?. paramPositions ?. contains(it.parameters.indexOf(element)) ?: false)
                 metadata ?. types

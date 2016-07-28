@@ -44,7 +44,7 @@ class PhpOptionTypeProvider : PhpTypeProvider2 {
     private fun Parameter.inferOptionalCallType() =
         // Option<T> -> Function(function ($arg) { return $arg; })
         letIf { firstChild !is ClassReference }
-        ?. parent ?. letIs(ParameterList::class)
+        ?. parent ?. let { it as? ParameterList }
         ?. letIf {
             it.parameters.isNotEmpty() &&
             it.parameters.first() === this
@@ -54,7 +54,7 @@ class PhpOptionTypeProvider : PhpTypeProvider2 {
             it is Function &&
             it.isClosure
         }
-        ?. parent ?. parent ?. parent ?. letIs(MethodReference::class)
+        ?. parent ?. parent ?. parent ?. let { it as? MethodReference }
         ?. classReference ?. type
         ?. getOptionalTypesSequence()
         ?. letIf { it.any() }
@@ -115,8 +115,8 @@ class PhpOptionTypeProvider : PhpTypeProvider2 {
     private fun MethodReference.getFirstPassedClosure() : Function? =
         parameters
         . letIf { it.isNotEmpty() }
-        ?. first() . letIs(PhpExpression::class)
-        ?. firstChild . letIs(Function::class)
+        ?. first() . let { it as? PhpExpression }
+        ?. firstChild . let { it as? Function }
         ?. letIf { it.isClosure }
 
     private fun PhpType.getOptionalTypes() : String? =
