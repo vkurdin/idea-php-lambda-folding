@@ -23,17 +23,18 @@ class StandardCallableArgumentsTypeProvider : PhpTypeProvider2 {
         }
         ?. parent ?. let { it as? ParameterList }
         ?. parent
-        ?. letIs (Function::class) ?. letIf { it.isClosure }
+        ?. let { it as? Function } ?. letIf { it.isClosure }
         ?. let {
             val metadata =
                 it.parent ?. parent ?. parent
                 ?. let { it as? FunctionReference }
                 ?. getCallMetadata()
 
-            if (metadata ?. paramPositions ?. contains(it.parameters.indexOf(element)) ?: false)
+            if (metadata ?. paramPositions ?. contains(it.parameters.indexOf(element)) ?: false) {
                 metadata ?. types
-             else
+            } else {
                 null
+            }
         }
         ?. filter { it.length > 3 && it.endsWith("[]") }
         ?. map { it.substring(0, it.length - 2) }

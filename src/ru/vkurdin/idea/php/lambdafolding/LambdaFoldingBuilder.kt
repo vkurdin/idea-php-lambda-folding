@@ -24,14 +24,16 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
     )
     
     override fun buildFoldRegions(root: PsiElement, document: Document, quick: Boolean): Array<out FoldingDescriptor> =
-        IdeaUtils.findChildrenOfType(root, Function::class.java)
+        IdeaUtils
+        .findChildrenOfType(root, Function::class.java)
         .asSequence()
         .filter {
             // match one-liner closures w/o errors
             it.isClosure &&
-            document.getLineNumber(it.textRange.startOffset) == document.getLineNumber(it.textRange.endOffset) &&
+            (document.getLineNumber(it.textRange.startOffset) == document.getLineNumber(it.textRange.endOffset)) &&
             !IdeaUtils.hasErrorElements(it)
-        }.map { closure ->
+        }
+        .map { closure ->
             var params: ParameterList? = null
             var bodyStmts: GroupStatement? = null
             var use: PhpUseList? = null
@@ -50,28 +52,20 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
             ?. let { bodyStmts } // params and bodyStmts must be found
             ?. statements
             ?. asSequence()
-            ?. filterIsInstance(Statement::class.java)
+            ?. filterIsInstance<Statement>()
             ?. take(2) // take at most two statements
-            ?. toList()
-            ?. letIf { it.size == 1 } // closure body must contain exactly one ...
-            ?. first() ?. let { it as? PhpReturn } // ... return statement which result is ...
-            ?. argument ?. let { it as? PhpExpression } //  ...an arbitrary expression
-            ?. let { expression ->
-                ClosureParts(
-                    closure,
-                    params!!,
-                    use,
-                    type,
-                    expression
-                )
-            }
-        }.filterNotNull()
+            ?. toList() ?.letIf { it.size == 1 } // closure body must contain exactly one ...
+            ?. first() ?.let { it as? PhpReturn } // ... return statement which result is ...
+            ?. argument ?.let { it as? PhpExpression } //  ...an arbitrary expression
+            ?. let { expression -> ClosureParts(closure, params!!, use, type, expression) }
+        }
+        .filterNotNull()
         .flatMap { parts ->
             val foldGroup = FoldingGroup.newGroup("lambda_fold")
             var useVars = emptyList<Variable>()
 
             parts.use ?.let {
-                useVars = it.children.filterIsInstance(Variable::class.java)
+                useVars = it.children.filterIsInstance<Variable>()
             }
 
             // hide "function", "return" keywords, semicolon
@@ -117,7 +111,8 @@ class LambdaFoldingBuilder : FoldingBuilderEx(), DumbAware {
                     foldGroup
                 )
             )
-        }.toList()
+        }
+        .toList()
         .toTypedArray()
 
     private fun getFold(node: ASTNode, range: TextRange, placeholder: String, group: FoldingGroup) =
