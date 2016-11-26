@@ -13,6 +13,7 @@ cache:
 
 env:
     - ORG_GRADLE_PROJECT_ideaVersion="LATEST-EAP-SNAPSHOT" ORG_GRADLE_PROJECT_phpPluginVersion="LATEST"
+    - ORG_GRADLE_PROJECT_ideaVersion="IU-2016.3" ORG_GRADLE_PROJECT_phpPluginVersion="163.7743.54"
     - ORG_GRADLE_PROJECT_ideaVersion="IU-2016.2" ORG_GRADLE_PROJECT_phpPluginVersion="162.1121.34"
     - ORG_GRADLE_PROJECT_ideaVersion="IU-2016.1" ORG_GRADLE_PROJECT_phpPluginVersion="145.970.40"
     - ORG_GRADLE_PROJECT_ideaVersion="IU-15.0.6" ORG_GRADLE_PROJECT_phpPluginVersion="143.1770"
